@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import {Home, Users, Repositories} from "./views";
-import {Header} from "./components/common";
+import {Header, Footer} from "./components/common";
 import {BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
+
 
 ReactDOM.render(
   <Router>
@@ -32,6 +33,9 @@ ReactDOM.render(
       <Route exact path="/" component={Home} />
 
     </Switch>
+    <Footer>
+    </Footer>
+    
   </Router>,
   document.getElementById('root')
 );
