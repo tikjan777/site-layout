@@ -1,28 +1,25 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {AppBar, Toolbar} from '@material-ui/core';
+import {CourseButton} from '../../index';
+import './Header.css';
 
-const Header = () => {
+const Header = ({children, ...props}) => {
 
   return(
-    <nav>
-      <ul>
-        <li>
-          <Link to="/home">
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link to="/users">
-            Users
-          </Link>
-        </li>
-        <li>
-          <Link to="/repositories">
-            Repositories
-          </Link>
-        </li>
-      </ul>
-    </nav>
+    <AppBar color={'primary'} position="static">
+      <Toolbar>
+        <CourseButton type='navigation' to="/home">
+          Home
+        </CourseButton>
+        <CourseButton type='navigation' to="/users">
+          Users
+        </CourseButton>
+        <CourseButton type='navigation' to="/repositories">
+          Repositories
+        </CourseButton>
+        {children}
+      </Toolbar>
+    </AppBar>
   )
 }
 
