@@ -3,5 +3,5 @@ import {Header} from "./common";
 
 export{
   CourseButton,
-  Header
+  Header,
 }

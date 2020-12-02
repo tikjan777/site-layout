@@ -30,7 +30,9 @@ ReactDOM.render(
         <Route exact path="/" component={Home} />
 
       </Switch>
+
     </MainLayout>
+
   </Router>,
   document.getElementById('root')
 );
