@@ -1,66 +1,96 @@
-import React, {useState, memo} from 'react';
+import React, {useState, memo, useEffect} from 'react';
 import {TextField, InputAdornment, Grid, Avatar} from '@material-ui/core';
+import { Alert, AlertTitle, Pagination} from '@material-ui/lab';
 import {AccountCircle} from '@material-ui/icons';
 import {SEARCH_USERS} from '../../url';
-import {useDataFetch} from '../../../hooks';
-
+import {useDataFetch, useCustomDebounce} from '../../../hooks';
+import './Users.css';
 
 const Users = () => {
 
   const [value, setValue] = useState('');
   const {data, setDynamicParams} = useDataFetch( SEARCH_USERS, false);
+  const debouncedValue = useCustomDebounce(value, 500);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
 
-  const handleSubmit = (ev) => {
-    ev.preventDefault();
+  useEffect(()=>{
+    setPageNumber(1)
+    getUsers(1)
+  }, [debouncedValue]);
 
-    value.trim().length > 2 &&
+  useEffect(()=>{
+    getUsers()
+  }, [pageNumber]);
+
+  useEffect(()=>{
+    let pages = data ? Math.ceil( data.total_count / 10) : 0;
+    pages = pages > 100 ? 100 : pages;
+    setPageCount(pages)
+  }, [data]);
+
+  const getUsers = (passedPageNumber) => {
+
+    debouncedValue.trim().length > 2 &&
     setDynamicParams({
-      q: `${value.trim()} type:user`,
+      q: `${debouncedValue.trim()} type:user`,
       per_page: 10,
+      page: passedPageNumber ? passedPageNumber: pageNumber
     })
   }
 
+  const handleChange = (ev) => {
+    setValue(ev.target.value)
+  };
+
   const mapUsers = () => {
-
-    console.log(data)
-
     return data?.items?.map((item)=>{
       return (
-        <Grid item style={{margin : "20px", padding: "5px", border: "1px solid black"}} justify="center" alignItems="center" container direction="row" xs={12} key={item.id}>
+        <Grid  className="Users__row" justify="center" alignItems="center" container direction="row" key={item.id}>
           <Grid item xs={12} md={3}>
-            <Avatar alt="user avatar" src={item.avatar_url} />
+            <Avatar style={{}} alt="user avatar" src={item.avatar_url} />
           </Grid>
-          <Grid item xs={4} md={3}>{item.login}</Grid>
-          <Grid item xs={4} md={3}>{item.type}</Grid>
-          <Grid item xs={4} md={3}>{item.id}</Grid>
+          <Grid item xs={12} md={3}>{item.login}</Grid>
+          <Grid item xs={12} md={3}>{item.type}</Grid>
+          <Grid item xs={12} md={3}>{item.id}</Grid>
         </Grid>
       )
     })
-  }
+  };
 
   return(
     <>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Search Users"
-          size='medium'
-          name='userSearch'
-          variant='outlined'
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AccountCircle />
-              </InputAdornment>
-            ),
-          }}
-          onChange={(ev)=>{
-            setValue(ev.target.value)
-          }}
-          value={value}
-        />
-      </form>
-      {mapUsers()}
+      <TextField
+        label="Search Users"
+        size='medium'
+        name='userSearch'
+        variant='outlined'
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <AccountCircle />
+            </InputAdornment>
+          ),
+        }}
+        onChange={handleChange}
+        value={value}
+      />
+      {data?.items?.length ?
+        mapUsers()
+        :
+        debouncedValue.trim().length > 2 &&
+          <Alert style={{width: "300px", margin: "auto", marginTop: "50px"}} severity="info">
+            <AlertTitle>No Users Found</AlertTitle>
+            There were no users found with <strong>{debouncedValue}</strong> username
+          </Alert>
+      }
+      <Pagination style={{margin: 'auto', marginTop: '50px', width: "fit-content"}}
+                  page={pageNumber}
+                  count={pageCount}
+                  variant="outlined"
+                  shape="rounded"
+                  onChange={(ev, page)=>{ setPageNumber(page) }} />
     </>
   )
-}
+};
 export default memo(Users);
